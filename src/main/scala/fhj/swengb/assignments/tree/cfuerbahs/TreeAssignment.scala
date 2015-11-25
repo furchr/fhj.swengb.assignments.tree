@@ -39,8 +39,9 @@ object Graph {
     * @param convert a converter function
     * @return
     */
-  def traverse[A, B](tree: Tree[A])(convert: A => B): Seq[B] = {
-  ???
+  def traverse[A, B](tree: Tree[A])(convert: A => B): Seq[B] = tree match {
+    case Node(value) => Seq(convert(value))
+    case Branch(left, right) => traverse(left)(convert) ++ traverse(right)(convert)
   }
 
   /**
@@ -64,8 +65,22 @@ object Graph {
               angle: Double = 45.0,
               colorMap: Map[Int, Color] = Graph.colorMap): Tree[L2D] = {
     assert(treeDepth <= colorMap.size, s"Treedepth higher than color mappings - bailing out ...")
-    ???
- }
+    //furchr
+
+    def insert(point: L2D, acc: Int): Tree[L2D] = acc match {
+      case last if (acc == treeDepth) => Branch(Node(point), Branch(Node(point.left(factor, angle, colorMap(acc - 1))), Node(point.right(factor, angle, colorMap(acc - 1)))))
+      case _ => Branch(Node(point), Branch(insert(point.left(factor, angle, colorMap(acc - 1)), acc + 1), insert(point.right(factor, angle, colorMap(acc - 1)), acc + 1)))
+    }
+
+    val acc = 1
+    val startpt = L2D(start, initialAngle, length, colorMap(acc - 1))
+
+    acc match {
+      case root if (treeDepth == 0) => Node(startpt)
+      case tree => insert(startpt, acc)
+    }
+  }
+    //furchr
 
 }
 
@@ -113,7 +128,12 @@ object L2D {
     * @return
     */
   def apply(start: Pt2D, angle: AngleInDegrees, length: Double, color: Color): L2D = {
-    ???
+    //furchr
+    val a = round(start.x + Math.cos(toRadiants(angle))*length)
+    val b = round(start.y + Math.sin(toRadiants(angle))*length)
+    val end = Pt2D(a,b)
+    return L2D(start:Pt2D,end,color)
+    //furchr
   }
 
 
